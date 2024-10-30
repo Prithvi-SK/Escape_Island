@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Dashboard</title>
+    <style>
+        body, html {
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQB1TlpasIqri2J7FnnJ_YaG8OOPiwn_T1EDA&s'); /* Updated background image */
+            background-size: 100% 100%; /* Stretch the image to fill the container */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; 
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2a2a2a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 1);
+            text-align: center;
+            width: 600px; /* Adjusted width for two player cards */
+            /* backdrop-filter: blur(5px); Optional: blur the background for better readability */
+        }
+
+        .player-card-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .player-card {
+            background-color: rgba(68, 68, 68, 0.8); /* Semi-transparent background for cards */
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            flex: 1; /* Flex property to evenly distribute space */
+            margin: 0 10px; /* Margin between player cards */
+        }
+
+        .player-card h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #e94560;
+        }
+
+        .player-card p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #ff6347;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #ff4500;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="player-card-container">
+            <div class="player-card">
+                <h2>Player 1</h2>
+                <p>Score: 1500</p>
+                <p>Level: 10</p>
+            </div>
+            <div class="player-card">
+                <h2>Player 2</h2>
+                <p>Score: 1200</p>
+                <p>Level: 8</p>
+            </div>
+        </div>
+        <button class="button" id="sound-button">
+            <span class="icon">🔊</span> Sound
+        </button>
+        <button class="button" id="settings-button">
+            <span class="icon">⚙️</span> Settings
+        </button>
+        <button class="button" id="enter-game-button">
+            <span class="icon">🎮</span> <a href="index1.html">Enter Game</a>
+        </button>
+    </div>
+</body>
+</html>
