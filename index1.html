@@ -2,11 +2,84 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Millennium Falcon</title>
+		<title>Island</title>
+		<style>
+			h3{
+				font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+				color: black;	
+			}
+			#wcount,#fcount,#rcount,#mcount,#scount,#fabcount{
+				color: red;
+			}
+			#toolbar{
+				/* position: absolute;
+				width: 150px;
+				height: 100vh;
+				padding: 16px;
+				background-color: #cccccc; */
+				width: 150px;
+				height: 300px;
+				background-color: rgba(255, 255, 255, 0.5); /* White with 50% opacity */
+				position: absolute; /* To position it within the outer div */
+				top: 50%;
+				left: 12%;
+				transform: translate(-50%, -50%); /* Center the inner div */
+				border-radius: 8px; /* Optional: adds rounded corners */
+				padding: 10px;
+			}
+			#progress-container{
+				/* width: 400px; */
+				/* height: 400px; */
+				/* background-color: #333; Adjust color of the outer div */
+				position: relative;
+			}
 
+			#fabricbut{
+				background-color: #28a745; /* Green background */
+				color: white; /* White text color */
+				border: none; /* No border */
+				padding: 10px 20px; /* Padding for size */
+				font-size: 16px; /* Font size */
+				border-radius: 15px; /* Curved edges */
+				cursor: pointer; /* Pointer cursor on hover */
+				transition: background-color 0.3s; /* Smooth transition effect */
+			}
+			button:active
+			{
+				background-color: #46a75d;
+			}
+			#successdiv{
+				color: red;
+			}
+			.top-right-container {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background-color: rgba(255, 255, 255, 0.5); /* Translucent background */
+				padding: 5px 8px; /* Reduced padding */
+				border-radius: 5px;
+			}
+
+			.top-right-container h5 {
+				margin: 2px 0;
+				font-size: 12px; /* Smaller font size */
+				color: #333; /* Adjust color as needed */
+			}
+		</style>
 		<link rel="stylesheet" href="public/index.css">
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cannon/build/cannon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ammo.js/0.0.10/ammo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ammo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.rawgit.com/kripken/ammo.js/master/builds/ammo"></script>
+
+
+
     <script type="importmap">
       {
         "imports": {
@@ -21,9 +94,31 @@
       <h1>MF</h1>
       <div class="border"></div>
     </div> -->
+	<div class="top-right-container">
+		<h5>E-Collect</h5>
+		<h5>Q-Harvest</h5>
+		<h5>C-Craft</h5>
+		<h5>F-Make Boat</h5>
+	  </div>
+	<div id="toolbar">
+
+		<h5>Wood: <span id="wcount">0</span> / 500</h5>
+		<h5>Food: <span id="fcount">0</span> / 100</h5>
+		<h5>Rope: <span id="rcount">0</span> / 50</h5>
+		<h5>Metal <span id="mcount">0</span> / 5</h5>
+		<h5>Wool: <span id="scount">0</span> / 30</h5>
+		<h5>Fabric: <span id="fabcount">0</span> / 2</h5>
+		<!-- <div id="fabricbut">Craft Boat</div> -->
+		<div id="successdiv"></div>
+		
+
+	</div>
     <div id="progress-container">
       <!-- <div id="progress">Engaging Hyperdrive...</div> -->
+        
     </div>
-		<script type="module" src="./main.js"></script>
+		<script type="module" src="./main.js">
+			
+		</script>
 	</body>
 </html>
