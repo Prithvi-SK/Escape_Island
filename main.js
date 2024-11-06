@@ -34,8 +34,6 @@ const scene = new THREE.Scene();
 
 
 
-<<<<<<< HEAD
-
 
 
 
@@ -246,9 +244,6 @@ loader.load('mine2.glb', (gltf) => {
 console.log("BBBBB")
 
 
-=======
->>>>>>> parent of 2d82e93 (no changes)
-
 
 
 
@@ -260,7 +255,7 @@ player1.position.set(0, 3.15, 1.2);
 scene.add(player1);
 let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
 
-<<<<<<< HEAD
+
 // Player 2 (Blue box)
 const player2Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 const player2Material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
@@ -304,34 +299,32 @@ window.addEventListener('keyup', (event) => {
   
 let player1Box = new THREE.Box3().setFromObject(player1);
 let player2Box = new THREE.Box3().setFromObject(player2);
-=======
-// player 1 red box
-const geometry1 = new THREE.BoxGeometry(0.05, 0.05, 0.05);
-const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
-const playerMesh1 = new THREE.Mesh(geometry1, material1);
-// Position the player
-playerMesh1.position.set(0, 1.3, 0);
-// Add player to the scene
-scene.add(playerMesh1); 
+
+// // player 1 red box
+// const geometry1 = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+// const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
+// const playerMesh1 = new THREE.Mesh(geometry1, material1);
+// // Position the player
+// playerMesh1.position.set(0, 1.3, 0);
+// // Add player to the scene
+// scene.add(playerMesh1); 
 
 
-// player 2 blue box
-const geometry2 = new THREE.BoxGeometry(0.05, 0.05, 0.05);
-const material2 = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Red color
-const playerMesh2 = new THREE.Mesh(geometry2, material2);
-// Position the player
-playerMesh2.position.set(0.08, 1.3, 0);
-// Add player to the scene
-scene.add(playerMesh2); 
-
-
-
->>>>>>> parent of 2d82e93 (no changes)
+// // player 2 blue box
+// const geometry2 = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+// const material2 = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Red color
+// const playerMesh2 = new THREE.Mesh(geometry2, material2);
+// // Position the player
+// playerMesh2.position.set(0.08, 1.3, 0);
+// // Add player to the scene
+// scene.add(playerMesh2); 
 
 
 
 
-<<<<<<< HEAD
+
+
+
 function updatePlayers() {
 	console.log('Updating players...');
 	console.log(keyState); // Track the current key states
@@ -717,8 +710,6 @@ animate();
   
 // }
 
-=======
->>>>>>> parent of 2d82e93 (no changes)
 
 
 
@@ -745,32 +736,32 @@ animate();
 
 
 
-// loading the model
-const loader = new GLTFLoader();
-console.log("PPP");
-loader.load('isl.glb', (gltf) => {
-  console.log('loading model');
-  console.log("Prithvi");
-  const mesh = gltf.scene;
+// // loading the model
+// const loader = new GLTFLoader();
+// console.log("PPP");
+// loader.load('isl.glb', (gltf) => {
+//   console.log('loading model');
+//   console.log("Prithvi");
+//   const mesh = gltf.scene;
 
-  mesh.traverse((child) => {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
+//   mesh.traverse((child) => {
+//     if (child.isMesh) {
+//       child.castShadow = true;
+//       child.receiveShadow = true;
+//     }
+//   });
 
-  mesh.position.set(0, 1.05, -1);
-  scene.add(mesh);
+//   mesh.position.set(0, 1.05, -1);
+//   scene.add(mesh);
 
-  document.getElementById('progress-container').style.display = 'none';
-}, (xhr) => {
-  console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
-}, (error) => {
-  console.error(error);
-});
+//   document.getElementById('progress-container').style.display = 'none';
+// }, (xhr) => {
+//   console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
+// }, (error) => {
+//   console.error(error);
+// });
 
-console.log("BBBBB")
+// console.log("BBBBB")
 
 
 
@@ -842,8 +833,6 @@ console.log("BBBBB")
 
 // }
 
-<<<<<<< HEAD
-=======
 
 
 
@@ -857,15 +846,10 @@ console.log("BBBBB")
 
 
 
+// function animate() {
+//   requestAnimationFrame(animate);
+//   controls.update();
+//   renderer.render(scene, camera);
+// }
 
-
-
-
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-animate();
->>>>>>> parent of 2d82e93 (no changes)
+// animate();
