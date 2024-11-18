@@ -146,112 +146,192 @@ boatloader.load('boat.glb', (gltf) => {
 }, (error) => {
   console.error(error);
 });
-// let woodenObjectBox = new THREE.Box3();
+let woodenObjectBox = new THREE.Box3();
+const colliders = []; // Array to store colliders
 
-// loading the model
 const loader = new GLTFLoader();
 console.log("PPP");
-loader.load('mine2.glb', (gltf) => {
-  console.log('loading model');
-  console.log("Prithvi");
-  const mesh = gltf.scene;
+loader.load(
+  'minimodel.glb',
+  (gltf) => {
+    console.log('loading model');
+    console.log("Prithvi");
+    const mesh = gltf.scene;
 
-  const woodenObject = mesh.getObjectByName("Object_51");
-//   woodenObjectBox.setFromObject(woodenObject);
+    // Traverse the scene to process each object
+    mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
 
-  mesh.traverse((child) => {
-    if (child.isMesh) {
-    	child.castShadow = true;
-    	child.receiveShadow = true;
-    	console.log(child)
-		if (child.name==woodenObject.name)
-		{
-			console.log("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD")
-			const redMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-			// Apply the red material to the mesh
-			child.material = redMaterial;
-			// const outlineGeometry = new THREE.EdgesGeometry(woodenObject.geometry);
-			// const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 }); // Red color
-			// const outlineMesh = new THREE.LineSegments(outlineGeometry, outlineMaterial);
+        // Set visibility for specific objects
+        if (child.name.startsWith("Object_")) {
+          child.visible = true;
+        } else {
+          child.visible = false;
+        }
+
+        // If the object is visible, create a collider
+        if (!child.name.startsWith("Object_7")) {
+          const box = new THREE.Box3().setFromObject(child); // Create bounding box
+		  const offset = new THREE.Vector3(100, 100, 100); // Adjust this if necessary
+		  box.translate(offset);
+		  colliders.push({
+			name: child.name,
+			boundingBox: box
+		  });
+
+          // Optional: Visualize the bounding box
+          const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color for debugging
+          scene.add(boxHelper);
 		
-			// // Position the outline mesh at the same position as the target object
-			// outlineMesh.position.copy(woodenObject.position);
-			// outlineMesh.rotation.copy(woodenObject.rotation);
-			// outlineMesh.scale.copy(woodenObject.scale);
+        }
+      }
+    });
+
+    // Position and add the loaded model to the scene
+    mesh.position.set(0, 0, 0);
+    scene.add(mesh);
+
+    // Hide progress container
+    document.getElementById('progress-container').style.display = 'none';
+  },
+  (xhr) => {
+    console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
+  },
+  (error) => {
+    console.error(error);
+  }
+);
+
+console.log("BBBBB");
+console.log(colliders);
+
+  
+
+// // loading the model
+// const loader = new GLTFLoader();
+// console.log("PPP");
+// loader.load('minimodel.glb', (gltf) => {
+//   console.log('loading model');
+//   console.log("Prithvi");
+//   const mesh = gltf.scene;
+
+//   const woodenObject = mesh.getObjectByName("Object_2007");
+// //   woodenObjectBox.setFromObject(woodenObject);
+
+//   mesh.traverse((child) => {
+//     if (child.isMesh) {
+//     	child.castShadow = true;
+//     	child.receiveShadow = true;
+// 		child.visible=false
+//     	console.log(child)
+// 		if (child.name.startsWith("Object_30"))
+// 		{
+// 			// console.log("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD")
+// 			// const redMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+// 			// // Apply the red material to the mesh
+// 			// child.material = redMaterial;
+// 			// const outlineGeometry = new THREE.EdgesGeometry(woodenObject.geometry);
+// 			// const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 }); // Red color
+// 			// const outlineMesh = new THREE.LineSegments(outlineGeometry, outlineMaterial);
 		
-			// // Add the outline mesh to the scene
-			// scene.add(outlineMesh);
-			// child.visible=false
-		}
+// 			// // Position the outline mesh at the same position as the target object
+// 			// outlineMesh.position.copy(woodenObject.position);
+// 			// outlineMesh.rotation.copy(woodenObject.rotation);
+// 			// outlineMesh.scale.copy(woodenObject.scale);
+		
+// 			// // Add the outline mesh to the scene
+// 			// scene.add(outlineMesh);
+// 			child.visible=true
+// 		}
 	  
-    //   // Create and store a bounding box for each child mesh
-	//   if (child.name=="Object_51" || child.name=="Object_22")
-	//   {
-	// 	const box = new THREE.Box3().setFromObject(child);
-	// 	colliders.push(box);  // Add bounding box to colliders array
+//     //   // Create and store a bounding box for each child mesh
+// 	//   if (child.name=="Object_51" || child.name=="Object_22")
+// 	//   {
+// 	// 	const box = new THREE.Box3().setFromObject(child);
+// 	// 	colliders.push(box);  // Add bounding box to colliders array
 
-	// 	const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color
-	// 	scene.add(boxHelper);  // Add the BoxHelper to the scene
-	//   }
+// 	// 	const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color
+// 	// 	scene.add(boxHelper);  // Add the BoxHelper to the scene
+// 	//   }
 
-      // Create a collider (bounding box) for each mesh
-      // child.geometry.computeBoundingBox(); // Compute bounding box based on geometry
-      // child.collider = child.geometry.boundingBox.clone(); // Clone the bounding box
+//       // Create a collider (bounding box) for each mesh
+//       // child.geometry.computeBoundingBox(); // Compute bounding box based on geometry
+//       // child.collider = child.geometry.boundingBox.clone(); // Clone the bounding box
 
-      // // Optional: Adjust the collider's position relative to the scene
-      // child.collider.min.add(child.position);
-      // child.collider.max.add(child.position);
-	  // Create a convex hull using the vertices of the mesh
-    //   const vertices = [];
-    //   child.geometry.attributes.position.array.forEach((_, index) => {
-    //     vertices.push(new THREE.Vector3(
-    //       child.geometry.attributes.position.getX(index),
-    //       child.geometry.attributes.position.getY(index),
-    //       child.geometry.attributes.position.getZ(index)
-    //     ));
-    //   });
+//       // // Optional: Adjust the collider's position relative to the scene
+//       // child.collider.min.add(child.position);
+//       // child.collider.max.add(child.position);
+// 	  // Create a convex hull using the vertices of the mesh
+//     //   const vertices = [];
+//     //   child.geometry.attributes.position.array.forEach((_, index) => {
+//     //     vertices.push(new THREE.Vector3(
+//     //       child.geometry.attributes.position.getX(index),
+//     //       child.geometry.attributes.position.getY(index),
+//     //       child.geometry.attributes.position.getZ(index)
+//     //     ));
+//     //   });
 
-    //   // Generate ConvexGeometry from vertices
-    //   const convexGeometry = new ConvexGeometry(vertices);
+//     //   // Generate ConvexGeometry from vertices
+//     //   const convexGeometry = new ConvexGeometry(vertices);
       
-    //   // Create a wireframe material for the convex hull
-    //   const convexMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+//     //   // Create a wireframe material for the convex hull
+//     //   const convexMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
       
-    //   // Create a mesh for the convex hull and add it to the scene
-    //   const convexHullMesh = new THREE.Mesh(convexGeometry, convexMaterial);
-    //   convexHullMesh.position.copy(child.position);
-    //   convexHullMesh.rotation.copy(child.rotation);
-    //   convexHullMesh.scale.copy(child.scale);
+//     //   // Create a mesh for the convex hull and add it to the scene
+//     //   const convexHullMesh = new THREE.Mesh(convexGeometry, convexMaterial);
+//     //   convexHullMesh.position.copy(child.position);
+//     //   convexHullMesh.rotation.copy(child.rotation);
+//     //   convexHullMesh.scale.copy(child.scale);
       
-    // //   scene.add(convexHullMesh);  // Add the convex hull to the scene
+//     // //   scene.add(convexHullMesh);  // Add the convex hull to the scene
 
-    //   // Add the convex hull as a collider if needed
-    //   colliders.push(convexGeometry.boundingBox);
+//     //   // Add the convex hull as a collider if needed
+//     //   colliders.push(convexGeometry.boundingBox);
 
-    }
-  });
+//     }
+//   });
 
-  mesh.position.set(0, 1.05, -1);
-  scene.add(mesh);
+//   mesh.position.set(0, 1.05, -1);
+//   scene.add(mesh);
 
-  document.getElementById('progress-container').style.display = 'none';
-}, (xhr) => {
-  console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
-}, (error) => {
-  console.error(error);
-});
+//   document.getElementById('progress-container').style.display = 'none';
+// }, (xhr) => {
+//   console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
+// }, (error) => {
+//   console.error(error);
+// });
 
-console.log("BBBBB")
+// console.log("BBBBB")
 
 
+const chloader = new GLTFLoader();
+    let character;
+    let mixer;
 
+    loader.load('MD.glb', (gltf) => {
+        character = gltf.scene;
+        character.traverse((node) => {
+            if (node.isMesh) {
+                node.castShadow = true;
+            }
+        });
+        scene.add(character);
+
+        // Animation setup (if the model includes animations)
+        if (gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(character);
+            gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
+        }
+    });
 
 
 // Player 1 (Red box)
 const player1Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 const player1Material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const player1 = new THREE.Mesh(player1Geometry, player1Material);
-player1.position.set(0, 3.15, 1.2);
+player1.position.set(0, 0.8, 0);
 scene.add(player1);
 let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
 
@@ -260,7 +340,7 @@ let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
 const player2Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 const player2Material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 const player2 = new THREE.Mesh(player2Geometry, player2Material);
-player2.position.set(0, 3.15, 1.6);
+player2.position.set(0, 2, 1.6);
 scene.add(player2);
 
 // Movement speed
@@ -281,7 +361,7 @@ const keyState = {
 
 window.addEventListener('keydown', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
-	console.log(`Key down: ${key}`);
+	// console.log(`Key down: ${key}`);
 	if (key in keyState.player1) keyState.player1[key] = true;
 	if (key in keyState.player2) keyState.player2[key] = true;
 	if (event.code === 'Space' && !isJumping) {
@@ -292,7 +372,7 @@ window.addEventListener('keydown', (event) => {
   
 window.addEventListener('keyup', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
-	console.log(`Key up: ${key}`);
+	// console.log(`Key up: ${key}`);
 	if (key in keyState.player1) keyState.player1[key] = false;
 	if (key in keyState.player2) keyState.player2[key] = false;
 });
@@ -322,150 +402,235 @@ let player2Box = new THREE.Box3().setFromObject(player2);
 
 
 
-
-
-
-function updatePlayers() {
-	console.log('Updating players...');
-	console.log(keyState); // Track the current key states
-
-	
-	// Update Player 1 position
-	if (keyState.player1.f) {
-		// player1.position.z -= speed;
-		if ((document.getElementById("wcount").style.color=="green") &&
-			(document.getElementById("rcount").style.color=="green") &&
-			(document.getElementById("scount").style.color=="green") &&
-			(document.getElementById("mcount").style.color=="green") &&
-			(document.getElementById("fcount").style.color=="green") && 
-			(document.getElementById("fabcount").style.color=="green") )
-		{
-			boatobj.visible=true
-			document.getElementById("successdiv").innerHTML="Congratulations!!\n You have crafted your boat at the harbour"
-		}
-	//   if (checkCollisions(player1Box)) player1.position.z += speed;
+function checkCollisions(playerBox) {
+	for (const collider of colliders) {
+	  if (playerBox.intersectsBox(collider)) {
+		return true; // Collision detected
+	  }
 	}
+	return false; // No collision
+  }
+  
+  function updatePlayers() {
+	// Update the bounding boxes
+	player1Box.setFromObject(player1);
+	player2Box.setFromObject(player2);
+  
+	// Player 1 Movement
 	if (keyState.player1.w) {
-		player1.position.z -= speed;
-	//   if (checkCollisions(player1Box)) player1.position.z += speed;
+	  player1.position.z -= speed;
+	  player1Box.setFromObject(player1); // Update bounding box
+	  if (checkCollisions(player1Box)) {
+		player1.position.z += speed; // Undo movement
+	  }
 	}
 	if (keyState.player1.s) {
-		player1.position.z += speed;
-	//   if (checkCollisions(player1Box)) player1.position.z -= speed;
+	  player1.position.z += speed;
+	  player1Box.setFromObject(player1);
+	  if (checkCollisions(player1Box)) {
+		player1.position.z -= speed;
+	  }
 	}
 	if (keyState.player1.a) {
-		player1.position.x -= speed;
-	//   if (checkCollisions(player1Box)) player1.position.x += speed;
+	  player1.position.x -= speed;
+	  player1Box.setFromObject(player1);
+	  if (checkCollisions(player1Box)) {
+		player1.position.x += speed;
+	  }
 	}
 	if (keyState.player1.d) {
-		player1.position.x += speed;
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+	  player1.position.x += speed;
+	  player1Box.setFromObject(player1);
+	  if (checkCollisions(player1Box)) {
+		player1.position.x -= speed;
+	  }
 	}
-	if (keyState.player1.q) {
-		if (document.getElementById("wcount").innerHTML!="500")
-		{
-			document.getElementById("wcount").innerHTML=(parseInt(document.getElementById("wcount").innerHTML)+10).toString();
-			keyState.player1.q=false;
-			if (document.getElementById("wcount").innerHTML=="500")
-			{
-				document.getElementById("wcount").style.color="green";
-			}
-		}
-		if (document.getElementById("rcount").innerHTML!="50")
-		{
-			document.getElementById("rcount").innerHTML=(parseInt(document.getElementById("rcount").innerHTML)+5).toString();
-			keyState.player1.q=false;
-			if (document.getElementById("rcount").innerHTML=="50")
-			{
-				document.getElementById("rcount").style.color="green";
-			}
-		}
-		
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
-	}
-	if (keyState.player1.e) {
-		if (document.getElementById("mcount").innerHTML!="5")
-		{
-			document.getElementById("mcount").innerHTML=(parseInt(document.getElementById("mcount").innerHTML)+1).toString();
-			keyState.player1.e=false;
-			if (document.getElementById("mcount").innerHTML=="5")
-			{
-				document.getElementById("mcount").style.color="green";
-			}
-		}
-		if (document.getElementById("fcount").innerHTML!="100")
-		{
-			document.getElementById("fcount").innerHTML=(parseInt(document.getElementById("fcount").innerHTML)+5).toString();
-			keyState.player1.e=false;
-			if (document.getElementById("fcount").innerHTML=="100")
-			{
-				document.getElementById("fcount").style.color="green";
-			}
-		}
-		if (document.getElementById("scount").innerHTML!="30")
-			{
-				document.getElementById("scount").innerHTML=(parseInt(document.getElementById("scount").innerHTML)+5).toString();
-				keyState.player1.e=false;
-				if (document.getElementById("scount").innerHTML=="30")
-				{
-					document.getElementById("scount").style.color="green";
-				}
-			}
-		
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
-	}
-
-	if (keyState.player1.c) {
-		if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="50" && document.getElementById("fabcount").innerHTML!="2")
-			{
-				// document.getElementById("fabricbut").disabled=false;
-				document.getElementById("scount").innerHTML="0"
-				document.getElementById("rcount").innerHTML="0"
-				document.getElementById("fabcount").innerHTML=(parseInt(document.getElementById("fabcount").innerHTML)+1).toString();
-				document.getElementById("scount").style.color="red"
-				document.getElementById("rcount").style.color="red"
-				keyState.player1.c=false;
-				if (document.getElementById("fabcount").innerHTML=="2")
-				{
-					document.getElementById("fabcount").style.color="green"
-				}
-			}
-
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
-	}
-	// if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="100")
-	// {
-	// 	document.getElementById("fabricbut").disabled=false;
-	// }
+  
 	// Player 1 Jump Logic
 	if (isJumping) {
-		player1.position.y += jumpVelocity;
-		jumpVelocity += gravity;
-		if (player1.position.y <= 1.9) {
-		player1.position.y = 1.9;
-		isJumping = false;
+	  player1.position.y += jumpVelocity;
+	  jumpVelocity += gravity;
+	  if (player1.position.y <= 1.9) {
+		player1.position.y = 1.9; // Reset position
+		isJumping = false; // Stop jumping
 		jumpVelocity = 0;
-		}
+	  }
 	}
-
-	// Update Player 2 position
+  
+	// Player 2 Movement
 	if (keyState.player2.arrowup) {
-		player2.position.z -= speed;
-	//   if (checkCollisions(player2Box)) player2.position.z += speed;
+	  player2.position.z -= speed;
+	  player2Box.setFromObject(player2);
+	  if (checkCollisions(player2Box)) {
+		player2.position.z += speed;
+	  }
 	}
 	if (keyState.player2.arrowdown) {
-		player2.position.z += speed;
-	//   if (checkCollisions(player2Box)) player2.position.z -= speed;
+	  player2.position.z += speed;
+	  player2Box.setFromObject(player2);
+	  if (checkCollisions(player2Box)) {
+		player2.position.z -= speed;
+	  }
 	}
 	if (keyState.player2.arrowleft) {
-		player2.position.x -= speed;
-	//   if (checkCollisions(player2Box)) player2.position.x += speed;
+	  player2.position.x -= speed;
+	  player2Box.setFromObject(player2);
+	  if (checkCollisions(player2Box)) {
+		player2.position.x += speed;
+	  }
 	}
 	if (keyState.player2.arrowright) {
-		player2.position.x += speed;
-	//   if (checkCollisions(player2Box)) player2.position.x -= speed;
+	  player2.position.x += speed;
+	  player2Box.setFromObject(player2);
+	  if (checkCollisions(player2Box)) {
+		player2.position.x -= speed;
+	  }
 	}
-}
+  }
+  
+
+
+// function updatePlayers() {
+// 	// console.log('Updating players...');
+// 	// console.log(keyState); // Track the current key states
+	
+	
+// 	// Update Player 1 position
+// 	if (keyState.player1.f) {
+// 		// player1.position.z -= speed;
+// 		if ((document.getElementById("wcount").style.color=="green") &&
+// 			(document.getElementById("rcount").style.color=="green") &&
+// 			(document.getElementById("scount").style.color=="green") &&
+// 			(document.getElementById("mcount").style.color=="green") &&
+// 			(document.getElementById("fcount").style.color=="green") && 
+// 			(document.getElementById("fabcount").style.color=="green") )
+// 		{
+// 			boatobj.visible=true
+// 			document.getElementById("successdiv").innerHTML="Congratulations!!\n You have crafted your boat at the harbour"
+// 		}
+// 	//   if (checkCollisions(player1Box)) player1.position.z += speed;
+// 	}
+// 	if (keyState.player1.w) {
+// 		player1.position.z -= speed;
+// 	//   if (checkCollisions(player1Box)) player1.position.z += speed;
+// 	}
+// 	if (keyState.player1.s) {
+// 		player1.position.z += speed;
+// 	//   if (checkCollisions(player1Box)) player1.position.z -= speed;
+// 	}
+// 	if (keyState.player1.a) {
+// 		player1.position.x -= speed;
+// 	//   if (checkCollisions(player1Box)) player1.position.x += speed;
+// 	}
+// 	if (keyState.player1.d) {
+// 		player1.position.x += speed;
+// 	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+// 	}
+// 	if (keyState.player1.q) {
+// 		if (document.getElementById("wcount").innerHTML!="500")
+// 		{
+// 			document.getElementById("wcount").innerHTML=(parseInt(document.getElementById("wcount").innerHTML)+10).toString();
+// 			keyState.player1.q=false;
+// 			if (document.getElementById("wcount").innerHTML=="500")
+// 			{
+// 				document.getElementById("wcount").style.color="green";
+// 			}
+// 		}
+// 		if (document.getElementById("rcount").innerHTML!="50")
+// 		{
+// 			document.getElementById("rcount").innerHTML=(parseInt(document.getElementById("rcount").innerHTML)+5).toString();
+// 			keyState.player1.q=false;
+// 			if (document.getElementById("rcount").innerHTML=="50")
+// 			{
+// 				document.getElementById("rcount").style.color="green";
+// 			}
+// 		}
+		
+// 	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+// 	}
+// 	if (keyState.player1.e) {
+// 		if (document.getElementById("mcount").innerHTML!="5")
+// 		{
+// 			document.getElementById("mcount").innerHTML=(parseInt(document.getElementById("mcount").innerHTML)+1).toString();
+// 			keyState.player1.e=false;
+// 			if (document.getElementById("mcount").innerHTML=="5")
+// 			{
+// 				document.getElementById("mcount").style.color="green";
+// 			}
+// 		}
+// 		if (document.getElementById("fcount").innerHTML!="100")
+// 		{
+// 			document.getElementById("fcount").innerHTML=(parseInt(document.getElementById("fcount").innerHTML)+5).toString();
+// 			keyState.player1.e=false;
+// 			if (document.getElementById("fcount").innerHTML=="100")
+// 			{
+// 				document.getElementById("fcount").style.color="green";
+// 			}
+// 		}
+// 		if (document.getElementById("scount").innerHTML!="30")
+// 			{
+// 				document.getElementById("scount").innerHTML=(parseInt(document.getElementById("scount").innerHTML)+5).toString();
+// 				keyState.player1.e=false;
+// 				if (document.getElementById("scount").innerHTML=="30")
+// 				{
+// 					document.getElementById("scount").style.color="green";
+// 				}
+// 			}
+		
+// 	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+// 	}
+
+// 	if (keyState.player1.c) {
+// 		if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="50" && document.getElementById("fabcount").innerHTML!="2")
+// 			{
+// 				// document.getElementById("fabricbut").disabled=false;
+// 				document.getElementById("scount").innerHTML="0"
+// 				document.getElementById("rcount").innerHTML="0"
+// 				document.getElementById("fabcount").innerHTML=(parseInt(document.getElementById("fabcount").innerHTML)+1).toString();
+// 				document.getElementById("scount").style.color="red"
+// 				document.getElementById("rcount").style.color="red"
+// 				keyState.player1.c=false;
+// 				if (document.getElementById("fabcount").innerHTML=="2")
+// 				{
+// 					document.getElementById("fabcount").style.color="green"
+// 				}
+// 			}
+
+// 	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+// 	}
+// 	// if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="100")
+// 	// {
+// 	// 	document.getElementById("fabricbut").disabled=false;
+// 	// }
+// 	// Player 1 Jump Logic
+// 	if (isJumping) {
+// 		player1.position.y += jumpVelocity;
+// 		jumpVelocity += gravity;
+// 		if (player1.position.y <= 1.9) {
+// 		player1.position.y = 1.9;
+// 		isJumping = false;
+// 		jumpVelocity = 0;
+// 		}
+// 	}
+
+// 	// Update Player 2 position
+// 	if (keyState.player2.arrowup) {
+// 		player2.position.z -= speed;
+// 	//   if (checkCollisions(player2Box)) player2.position.z += speed;
+// 	}
+// 	if (keyState.player2.arrowdown) {
+// 		player2.position.z += speed;
+// 	//   if (checkCollisions(player2Box)) player2.position.z -= speed;
+// 	}
+// 	if (keyState.player2.arrowleft) {
+// 		player2.position.x -= speed;
+// 	//   if (checkCollisions(player2Box)) player2.position.x += speed;
+// 	}
+// 	if (keyState.player2.arrowright) {
+// 		player2.position.x += speed;
+// 	//   if (checkCollisions(player2Box)) player2.position.x -= speed;
+// 	}
+// }
   
 
 
