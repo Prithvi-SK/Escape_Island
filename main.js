@@ -99,7 +99,7 @@ updateSun();
 
 // camera
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(10, 15, -20);
+camera.position.set(10, 15, 10);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -109,7 +109,7 @@ controls.maxDistance = 50;
 controls.minPolarAngle = 0.5;
 controls.maxPolarAngle = 1.5;
 controls.autoRotate = false;
-controls.target = new THREE.Vector3(10, 0, 0);
+controls.target = new THREE.Vector3(10, 0, -10);
 controls.update();
 
 
