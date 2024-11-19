@@ -14,6 +14,8 @@ import { FlyControls } from 'three/examples/jsm/controls/FlyControls.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
 import * as Ammo from "ammo.js"
+import { Water } from 'three/examples/jsm/objects/Water.js';
+
 
 
 
@@ -37,23 +39,77 @@ const scene = new THREE.Scene();
 
 
 
+const waterGeometry = new THREE.PlaneGeometry(500, 500);
+const water = new Water(waterGeometry, {
+    textureWidth: 512,
+    textureHeight: 512,
+    waterNormals: new THREE.TextureLoader().load('https://threejs.org/examples/textures/waternormals.jpg', function (texture) {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    }),
+    sunDirection: new THREE.Vector3(),
+    sunColor: 0xffffff,
+    waterColor: 0x00dcd6,  // Darker water for stormy effect
+    distortionScale: 10.0,  // Larger distortion for bigger waves
+    fog: scene.fog !== undefined,
+});
+water.rotation.x = -Math.PI / 2;
+water.position.set(-1,-1,-1)
+scene.add(water);
+
+// Sky setup (cloudy and stormy)
+const sky = new Sky();
+sky.scale.setScalar(10000);
+scene.add(sky);
+
+const skyUniforms = sky.material.uniforms;
+skyUniforms['turbidity'].value = 50;  // Increase turbidity for more dense clouds
+skyUniforms['rayleigh'].value = 0.5;  // Less scattering for a darker stormy sky
+skyUniforms['mieCoefficient'].value = 0.1;  // Increase for a more diffused look
+skyUniforms['mieDirectionalG'].value = 0.9;  // High value for more light scattering
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const parameters = {
+    elevation: 1,  // Low sun to enhance stormy effect
+    azimuth: 200
+};
+
+// Update sun position based on sky parameters
+function updateSun() {
+    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
+    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+
+    const sunPosition = new THREE.Vector3();
+    sunPosition.setFromSphericalCoords(1, phi, theta);
+
+    sky.material.uniforms['sunPosition'].value.copy(sunPosition);
+    water.material.uniforms['sunDirection'].value.copy(sunPosition).normalize();
+
+    scene.environment = pmremGenerator.fromScene(sky).texture;
+}
+
+updateSun();
+
+
+
+
+
 
 
 
 
 // camera
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(4, 10, 8);
+camera.position.set(10, 15, -20);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 1;
+controls.minDistance = 5;
 controls.maxDistance = 50;
 controls.minPolarAngle = 0.5;
 controls.maxPolarAngle = 1.5;
 controls.autoRotate = false;
-controls.target = new THREE.Vector3(0, 1, 0);
+controls.target = new THREE.Vector3(10, 0, 0);
 controls.update();
 
 
@@ -146,9 +202,15 @@ boatloader.load('boat.glb', (gltf) => {
 }, (error) => {
   console.error(error);
 });
+
+
+
+
+
 let woodenObjectBox = new THREE.Box3();
 const colliders = []; // Array to store colliders
-
+let islandmodel=null;
+let children=[];
 const loader = new GLTFLoader();
 console.log("PPP");
 loader.load(
@@ -157,7 +219,7 @@ loader.load(
     console.log('loading model');
     console.log("Prithvi");
     const mesh = gltf.scene;
-
+	islandmodel=gltf.scene;
     // Traverse the scene to process each object
     mesh.traverse((child) => {
       if (child.isMesh) {
@@ -165,30 +227,55 @@ loader.load(
         child.receiveShadow = true;
 
         // Set visibility for specific objects
-        if (child.name.startsWith("Object_")) {
+        if (true) {
           child.visible = true;
         } else {
           child.visible = false;
         }
 
         // If the object is visible, create a collider
-        if (!child.name.startsWith("Object_7")) {
-          const box = new THREE.Box3().setFromObject(child); // Create bounding box
-		  const offset = new THREE.Vector3(100, 100, 100); // Adjust this if necessary
-		  box.translate(offset);
-		  colliders.push({
-			name: child.name,
-			boundingBox: box
-		  });
+        if (child.name.startsWith("Object_7") || child.name.startsWith("Object_8")) {
+			console.log("")
+		}
+		else{
 
-          // Optional: Visualize the bounding box
-          const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color for debugging
-          scene.add(boxHelper);
+        //   const box = new THREE.Box3().setFromObject(child); // Create bounding box
+		//   const offset = new THREE.Vector3(100, 100, 100); // Adjust this if necessary
+		//   box.translate(offset);
+        //   colliders.push(box); // Add bounding box to colliders array
+
+        //   // Optional: Visualize the bounding box
+        //   const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color for debugging
+        //   scene.add(boxHelper);
+		// Recenter geometry to fix alignment issues
+		child.geometry.computeBoundingBox(); // Ensure bounding box is calculated
+		const geometryCenter = new THREE.Vector3();
+		child.geometry.boundingBox.getCenter(geometryCenter); // Get the geometry center
+		child.geometry.center(); // Center the geometry around its origin
 		
+		// Offset the object's position to maintain world-space alignment
+		child.position.add(geometryCenter);
+	
+		// Compute the bounding box in world space
+		const boundingBox = new THREE.Box3().setFromObject(child);
+	
+		// Add the bounding box to the colliders array
+		colliders.push({
+			obj: child,
+			box: boundingBox,
+			health:5
+		  });
+		children.push(child);
+		// For debugging: Visualize the bounding box
+		const boxHelper = new THREE.BoxHelper(child, 0xff0000); // Red color
+		scene.add(boxHelper);
         }
       }
     });
-
+	// function eliminate(nam)
+	// {
+	// 	mesh.getObjectByName(nam).position-=5
+	// }
     // Position and add the loaded model to the scene
     mesh.position.set(0, 0, 0);
     scene.add(mesh);
@@ -205,7 +292,6 @@ loader.load(
 );
 
 console.log("BBBBB");
-console.log(colliders);
 
   
 
@@ -305,46 +391,81 @@ console.log(colliders);
 
 // console.log("BBBBB")
 
+console.log(children)
 
-const chloader = new GLTFLoader();
-    let character;
-    let mixer;
 
-    loader.load('MD.glb', (gltf) => {
-        character = gltf.scene;
-        character.traverse((node) => {
-            if (node.isMesh) {
-                node.castShadow = true;
-            }
-        });
-        scene.add(character);
+// const chloader = new GLTFLoader();
+//     let character;
+//     let mixer;
 
-        // Animation setup (if the model includes animations)
-        if (gltf.animations.length > 0) {
-            mixer = new THREE.AnimationMixer(character);
-            gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
-        }
-    });
+//     chloader.load('MD.glb', (gltf) => {
+//         character = gltf.scene;
+//         character.traverse((node) => {
+//             if (node.isMesh) {
+//                 node.castShadow = true;
+//             }
+//         });
+//         scene.add(character);
+
+//         // Animation setup (if the model includes animations)
+//         if (gltf.animations.length > 0) {
+//             mixer = new THREE.AnimationMixer(character);
+//             gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
+//         }
+//     });
 
 
 // Player 1 (Red box)
-const player1Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+const player1Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
 const player1Material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const player1 = new THREE.Mesh(player1Geometry, player1Material);
-player1.position.set(0, 0.8, 0);
+player1.position.set(10, 0.25, -10);
 scene.add(player1);
-let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
+// let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
 
+
+
+
+// const player1Material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+// // Define body parts
+// const bodyGeometry = new THREE.BoxGeometry(0.25, 0.5, 0.25);
+// const headGeometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+// const armGeometry = new THREE.BoxGeometry(0.125, 0.375, 0.125);
+
+// // Position parts
+// const body = new THREE.Mesh(bodyGeometry, player1Material);
+// body.position.set(0, 0.25, 0);
+
+// const head = new THREE.Mesh(headGeometry, player1Material);
+// head.position.set(0, 0.625, 0);
+
+// const leftArm = new THREE.Mesh(armGeometry, player1Material);
+// leftArm.position.set(-0.1875, 0.4375, 0);
+
+// const rightArm = new THREE.Mesh(armGeometry, player1Material);
+// rightArm.position.set(0.1875, 0.4375, 0);
+
+// // Grouping character parts
+// const player1 = new THREE.Group();
+// player1.add(body);
+// player1.add(head);
+// player1.add(leftArm);
+// player1.add(rightArm);
+// player1.position.set(0, 0.8, 0)
+// scene.add(player1);
+
+// let armSwingDirection = 1; 
 
 // Player 2 (Blue box)
-const player2Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+const player2Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
 const player2Material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 const player2 = new THREE.Mesh(player2Geometry, player2Material);
-player2.position.set(0, 2, 1.6);
+player2.position.set(10, 0.25, -8.5);
 scene.add(player2);
 
 // Movement speed
-const speed = 0.05;
+const speed = 0.1;
 
 
 const jumpHeight = 0.1;
@@ -400,15 +521,17 @@ let player2Box = new THREE.Box3().setFromObject(player2);
 // scene.add(playerMesh2); 
 
 
-
+var touching=[];
 
 function checkCollisions(playerBox) {
 	for (const collider of colliders) {
-	  if (playerBox.intersectsBox(collider)) {
-		return true; // Collision detected
+	  if (playerBox.intersectsBox(collider.box)) {
+		touching.push(collider)
+		return [true,collider]; // Collision detected
 	  }
 	}
-	return false; // No collision
+	touching=[]
+	return [false,0]; // No collision
   }
   
   function updatePlayers() {
@@ -420,32 +543,168 @@ function checkCollisions(playerBox) {
 	if (keyState.player1.w) {
 	  player1.position.z -= speed;
 	  player1Box.setFromObject(player1); // Update bounding box
-	  if (checkCollisions(player1Box)) {
+	  if (checkCollisions(player1Box)[0]) {
 		player1.position.z += speed; // Undo movement
 	  }
+	  console.log(checkCollisions(player1Box))
 	}
 	if (keyState.player1.s) {
 	  player1.position.z += speed;
 	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)) {
+	  if (checkCollisions(player1Box)[0]) {
 		player1.position.z -= speed;
 	  }
 	}
 	if (keyState.player1.a) {
 	  player1.position.x -= speed;
 	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)) {
+	  if (checkCollisions(player1Box)[0]) {
 		player1.position.x += speed;
 	  }
 	}
 	if (keyState.player1.d) {
 	  player1.position.x += speed;
 	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)) {
+	  if (checkCollisions(player1Box)[0]) {
 		player1.position.x -= speed;
 	  }
 	}
-  
+    if (touching.length>0 && keyState.player1.q) {
+		
+		if (touching[0].obj.name.startsWith("Object_3"))
+		{
+			
+			if (document.getElementById("wcount").innerHTML!="500")
+			{
+				document.getElementById("wcount").innerHTML=(parseInt(document.getElementById("wcount").innerHTML)+10).toString();
+				keyState.player1.q=false;
+				if (document.getElementById("wcount").innerHTML=="500")
+				{
+					document.getElementById("wcount").style.color="green";
+				}
+			}
+		}
+		if (touching[0].obj.name.startsWith("Object_5"))
+		{
+			if (document.getElementById("mcount").innerHTML!="5")
+			{
+				document.getElementById("mcount").innerHTML=(parseInt(document.getElementById("mcount").innerHTML)+1).toString();
+				keyState.player1.q=false;
+				if (document.getElementById("mcount").innerHTML=="5")
+				{
+					document.getElementById("mcount").style.color="green";
+				}
+			}
+		}
+		if (touching[0].obj.name.startsWith("C"))
+		{
+			if (document.getElementById("fcount").innerHTML!="100")
+			{
+				document.getElementById("fcount").innerHTML=(parseInt(document.getElementById("fcount").innerHTML)+5).toString();
+				keyState.player1.q=false;
+				if (document.getElementById("fcount").innerHTML=="100")
+				{
+					document.getElementById("fcount").style.color="green";
+				}
+			}
+		}
+		// touching[0].visible=false;
+		let originalEmissive = touching[0].obj.material
+		touching[0].obj.material = new THREE.Color(0xffffff);
+		// touching[0].material.emissiveIntensity = 1;
+		setTimeout(() => {
+			touching[0].obj.material=(originalEmissive); // Restore original color
+		}, 250);
+
+		// touching[0].obj.position-=5;
+		for (let i of colliders)
+		{
+			if (i==touching[0].obj)
+			{
+				i.health-=1;
+				if (i.health<1)
+				{
+					// i.visible=false
+					// touching[0].obj.position-=5;
+					// touching=[];
+				}
+				break;
+			}
+		}
+			
+			
+		
+	}
+	if (touching.length>0 && keyState.player1.e) {
+		if (touching[0].obj.name.startsWith("Object_4"))
+		{
+			if (document.getElementById("rcount").innerHTML!="50")
+			{
+				document.getElementById("rcount").innerHTML=(parseInt(document.getElementById("rcount").innerHTML)+5).toString();
+				keyState.player1.e=false;
+				if (document.getElementById("rcount").innerHTML=="50")
+				{
+					document.getElementById("rcount").style.color="green";
+				}
+				// touching[0].obj.visible=false
+			}
+		}
+
+		if (touching[0].obj.name.startsWith("C"))
+		{
+			if (document.getElementById("scount").innerHTML!="30")
+				{
+					document.getElementById("scount").innerHTML=(parseInt(document.getElementById("scount").innerHTML)+5).toString();
+					keyState.player1.e=false;
+					if (document.getElementById("scount").innerHTML=="30")
+					{
+						document.getElementById("scount").style.color="green";
+					}
+				}
+		}
+			// touching[0].visible=false;
+		let originalEmissive = touching[0].obj.material
+		touching[0].obj.material = new THREE.Color(0xffffff);
+		// touching[0].material.emissiveIntensity = 1;
+		setTimeout(() => {
+			touching[0].obj.material=(originalEmissive); // Restore original color
+		}, 200);
+
+		// touching[0].obj.position-=5;
+		for (let i of colliders)
+		{
+			if (i==touching[0].obj)
+			{
+				i.health-=1;
+				if (i.health<1)
+				{
+					// i.visible=false
+					// touching[0].obj.position-=5;
+					// touching=[];
+				}
+				break;
+			}
+		}
+	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+	}
+	if (keyState.player1.c) {
+		if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="50" && document.getElementById("fabcount").innerHTML!="2")
+			{
+				// document.getElementById("fabricbut").disabled=false;
+				document.getElementById("scount").innerHTML="0"
+				document.getElementById("rcount").innerHTML="0"
+				document.getElementById("fabcount").innerHTML=(parseInt(document.getElementById("fabcount").innerHTML)+1).toString();
+				document.getElementById("scount").style.color="red"
+				document.getElementById("rcount").style.color="red"
+				keyState.player1.c=false;
+				if (document.getElementById("fabcount").innerHTML=="2")
+				{
+					document.getElementById("fabcount").style.color="green"
+				}
+			}
+
+	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+	}
 	// Player 1 Jump Logic
 	if (isJumping) {
 	  player1.position.y += jumpVelocity;
@@ -461,28 +720,28 @@ function checkCollisions(playerBox) {
 	if (keyState.player2.arrowup) {
 	  player2.position.z -= speed;
 	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)) {
+	  if (checkCollisions(player2Box)[0]) {
 		player2.position.z += speed;
 	  }
 	}
 	if (keyState.player2.arrowdown) {
 	  player2.position.z += speed;
 	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)) {
+	  if (checkCollisions(player2Box)[0]) {
 		player2.position.z -= speed;
 	  }
 	}
 	if (keyState.player2.arrowleft) {
 	  player2.position.x -= speed;
 	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)) {
+	  if (checkCollisions(player2Box)[0]) {
 		player2.position.x += speed;
 	  }
 	}
 	if (keyState.player2.arrowright) {
 	  player2.position.x += speed;
 	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)) {
+	  if (checkCollisions(player2Box)[0]) {
 		player2.position.x -= speed;
 	  }
 	}
@@ -756,6 +1015,7 @@ function animate() {
   // // renderer.render(scene, camera);
 
 	requestAnimationFrame(animate);
+	water.material.uniforms['time'].value += 1.0 / 50.0;  // Slower, more intense waves
 	controls.update();
 	updatePlayers();
 	// let a = document.getElementById("toolbar")
