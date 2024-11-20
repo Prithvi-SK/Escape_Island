@@ -98,22 +98,22 @@ updateSun();
 
 
 // camera
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(10, 15, 10);
+// const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+// camera.position.set(10, 15, 10);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.minDistance = 5;
-controls.maxDistance = 50;
-controls.minPolarAngle = 0.5;
-controls.maxPolarAngle = 1.5;
-controls.autoRotate = false;
-controls.target = new THREE.Vector3(10, 0, -10);
-controls.update();
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enableDamping = true;
+// controls.enablePan = false;
+// controls.minDistance = 5;
+// controls.maxDistance = 50;
+// controls.minPolarAngle = 0.5;
+// controls.maxPolarAngle = 1.5;
+// controls.autoRotate = false;
+// controls.target = new THREE.Vector3(10, 0, -10);
+// controls.update();
 
 
-
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
 
@@ -214,7 +214,7 @@ let children=[];
 const loader = new GLTFLoader();
 console.log("PPP");
 loader.load(
-  'minimodel.glb',
+  'minimodel2.glb',
   (gltf) => {
     console.log('loading model');
     console.log("Prithvi");
@@ -227,8 +227,8 @@ loader.load(
         child.receiveShadow = true;
 
         // Set visibility for specific objects
-        if (true) {
-          child.visible = true;
+        if (!child.name.startsWith("wall")) {
+          child.material.transparent= true;
         } else {
           child.visible = false;
         }
@@ -414,6 +414,72 @@ console.log(children)
 //         }
 //     });
 
+// Material
+const material = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+
+// Character parts (scaled down)
+const head = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), material); // Smaller head
+head.position.set(0, 0.695, 0); // Adjusted for smaller size
+
+const body = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.375, 0.125), material); // Smaller body
+body.position.set(0, 0.375, 0); // Adjusted position
+
+const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.25, 0.125), material); // Smaller left leg
+leftLeg.position.set(-0.0625, 0.125, 0); // Adjusted position
+
+const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.25, 0.125), material); // Smaller right leg
+rightLeg.position.set(0.0625, 0.125, 0); // Adjusted position
+
+const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.25, 0.125), material); // Smaller left arm
+leftArm.position.set(-0.1875, 0.6, 0); // Adjusted position
+
+const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.25, 0.125), material); // Smaller right arm
+rightArm.position.set(0.1875, 0.6, 0); // Adjusted position
+
+// Adjust camera position for the smaller character
+head.add(camera);
+camera.position.set(0, 0.1, 0.1); // Adjust for first-person view
+camera.lookAt(new THREE.Vector3(0, 0.75, -0.5)); // Look slightly downward
+
+// Group character parts for movement
+const character = new THREE.Group();
+character.add(head, body, leftLeg, rightLeg, leftArm, rightArm);
+
+// Scale down the entire group to make the character even smaller (if needed)
+character.scale.set(0.5, 0.5, 0.5); // Scale to 50% of its current size
+
+character.position.set(12, 0.125, -12); // Adjust ground-level position
+scene.add(character);
+
+
+
+
+let isPointerLocked = false;
+let rotationSpeed = 0.005; // Adjust rotation sensitivity
+let characterRotation = 0; // Track current rotation
+
+// Add event listener for pointer lock
+document.addEventListener('click', () => {
+    // Request pointer lock on canvas
+    if (!isPointerLocked) {
+        document.body.requestPointerLock();
+    }
+});
+
+// Pointer lock change event
+document.addEventListener('pointerlockchange', () => {
+    isPointerLocked = document.pointerLockElement === document.body;
+});
+
+// Mouse movement handler
+document.addEventListener('mousemove', (event) => {
+    if (isPointerLocked) {
+        const deltaX = event.movementX; // Movement along the X-axis
+        characterRotation -= deltaX * rotationSpeed;
+        character.rotation.y = characterRotation;
+    }
+});
+
 
 // Player 1 (Red box)
 const player1Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
@@ -467,6 +533,12 @@ scene.add(player2);
 // Movement speed
 const speed = 0.1;
 
+const moveSpeed = 0.1;
+let armSwingDirection = 1; // 1 = swinging up, -1 = swinging down
+// const keysPressed = {};
+
+let legAngle = 0;
+let swingDirection = 1;
 
 const jumpHeight = 0.1;
 const gravity = -0.01;
@@ -476,14 +548,19 @@ let jumpVelocity = 0;
 
 // Key state tracking
 const keyState = {
-  player1: { w: false, a: false, s: false, d: false, q: false, e: false, c: false, f: false },
+  character: { w: false, a: false, s: false, d: false, q: false, e: false, c: false, f: false },
   player2: { ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false },
 };
+
+
+// window.addEventListener('keydown', (event) => keysPressed[event.key.toLowerCase()] = true);
+// window.addEventListener('keyup', (event) => keysPressed[event.key.toLowerCase()] = false);
+
 
 window.addEventListener('keydown', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
 	// console.log(`Key down: ${key}`);
-	if (key in keyState.player1) keyState.player1[key] = true;
+	if (key in keyState.character) keyState.character[key] = true;
 	if (key in keyState.player2) keyState.player2[key] = true;
 	if (event.code === 'Space' && !isJumping) {
 	  isJumping = true;
@@ -494,12 +571,13 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
 	// console.log(`Key up: ${key}`);
-	if (key in keyState.player1) keyState.player1[key] = false;
+	if (key in keyState.character) keyState.character[key] = false;
 	if (key in keyState.player2) keyState.player2[key] = false;
 });
   
-let player1Box = new THREE.Box3().setFromObject(player1);
+let characterBox = new THREE.Box3().setFromObject(character);
 let player2Box = new THREE.Box3().setFromObject(player2);
+// let characterBox= new THREE.Box3().setFromObject(character);
 
 // // player 1 red box
 // const geometry1 = new THREE.BoxGeometry(0.05, 0.05, 0.05);
@@ -536,48 +614,101 @@ function checkCollisions(playerBox) {
   
   function updatePlayers() {
 	// Update the bounding boxes
-	player1Box.setFromObject(player1);
+	characterBox.setFromObject(player1);
 	player2Box.setFromObject(player2);
+  // characterBox.setFromObject(character)
   
 	// Player 1 Movement
-	if (keyState.player1.w) {
-	  player1.position.z -= speed;
-	  player1Box.setFromObject(player1); // Update bounding box
-	  if (checkCollisions(player1Box)[0]) {
-		player1.position.z += speed; // Undo movement
+	if (keyState.character.w) {
+    character.position.z -= Math.cos(characterRotation) * speed;
+    character.position.x -= Math.sin(characterRotation) * speed;
+    // legAngle += 0.1;
+    // leftLeg.rotation.x = Math.sin(legAngle) * 0.5;
+    // rightLeg.rotation.x = -Math.sin(legAngle) * 0.5;
+	  characterBox.setFromObject(character); // Update bounding box
+	  if (checkCollisions(characterBox)[0]) {
+		// character.position.z += speed; // Undo movement
+    character.position.z += Math.cos(characterRotation) * speed;
+    character.position.x += Math.sin(characterRotation) * speed; // Undo movement
+
 	  }
-	  console.log(checkCollisions(player1Box))
+	  console.log(checkCollisions(characterBox))
 	}
-	if (keyState.player1.s) {
-	  player1.position.z += speed;
-	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)[0]) {
-		player1.position.z -= speed;
+  else
+  {
+    leftLeg.rotation.x = 0;
+    rightLeg.rotation.x = 0;
+  }
+	if (keyState.character.s) {
+	  // character.position.z += speed;
+    character.position.z += Math.cos(characterRotation) * speed;
+    character.position.x += Math.sin(characterRotation) * speed;
+    // legAngle += 0.1;
+    // leftLeg.rotation.x = Math.sin(legAngle) * 0.5;
+    // rightLeg.rotation.x = -Math.sin(legAngle) * 0.5;
+	  characterBox.setFromObject(character);
+	  if (checkCollisions(characterBox)[0]) {
+		// character.position.z -= speed;
+    character.position.z -= Math.cos(characterRotation) * speed;
+    character.position.x -= Math.sin(characterRotation) * speed; // Undo movement
 	  }
 	}
-	if (keyState.player1.a) {
-	  player1.position.x -= speed;
-	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)[0]) {
-		player1.position.x += speed;
+  else
+  {
+    leftLeg.rotation.x = 0;
+    rightLeg.rotation.x = 0;
+  }
+	if (keyState.character.a) {
+	  // character.position.x -= speed;
+    character.position.z += Math.sin(characterRotation) * speed;
+    character.position.x -= Math.cos(characterRotation) * speed;
+    // legAngle += 0.1;
+    // leftLeg.rotation.x = Math.sin(legAngle) * 0.5;
+    // rightLeg.rotation.x = -Math.sin(legAngle) * 0.5;
+	  characterBox.setFromObject(character);
+	  if (checkCollisions(characterBox)[0]) {
+		// character.position.x += speed;
+    character.position.z -= Math.sin(characterRotation) * speed;
+    character.position.x += Math.cos(characterRotation) * speed; // Undo movement
 	  }
 	}
-	if (keyState.player1.d) {
-	  player1.position.x += speed;
-	  player1Box.setFromObject(player1);
-	  if (checkCollisions(player1Box)[0]) {
-		player1.position.x -= speed;
+  else
+  {
+    leftLeg.rotation.x = 0;
+    rightLeg.rotation.x = 0;
+  }
+	if (keyState.character.d) {
+	  // character.position.x += speed;
+    character.position.z -= Math.sin(characterRotation) * speed;
+    character.position.x += Math.cos(characterRotation) * speed;
+    // legAngle += 0.1;
+    // leftLeg.rotation.x = Math.sin(legAngle) * 0.5;
+    // rightLeg.rotation.x = -Math.sin(legAngle) * 0.5;
+	  characterBox.setFromObject(character);
+	  if (checkCollisions(characterBox)[0]) {
+		// character.position.x -= speed;
+    character.position.z += Math.sin(characterRotation) * speed;
+    character.position.x -= Math.cos(characterRotation) * speed; // Undo movement
 	  }
 	}
-    if (touching.length>0 && keyState.player1.q) {
-		
+  else
+  {
+    leftLeg.rotation.x = 0;
+    rightLeg.rotation.x = 0;
+  }
+    if (touching.length>0 && keyState.character.q) {
+      swingDirection = swingDirection === 1 ? -1 : 1;
+      rightArm.rotation.z += swingDirection * 0.5;
+      if (Math.abs(rightArm.rotation.z) > Math.PI / 4) {
+        swingDirection = -swingDirection;
+      }
 		if (touching[0].obj.name.startsWith("Object_3"))
 		{
 			
 			if (document.getElementById("wcount").innerHTML!="500")
 			{
 				document.getElementById("wcount").innerHTML=(parseInt(document.getElementById("wcount").innerHTML)+10).toString();
-				keyState.player1.q=false;
+				keyState.character.q=false;
 				if (document.getElementById("wcount").innerHTML=="500")
 				{
 					document.getElementById("wcount").style.color="green";
@@ -589,7 +720,7 @@ function checkCollisions(playerBox) {
 			if (document.getElementById("mcount").innerHTML!="5")
 			{
 				document.getElementById("mcount").innerHTML=(parseInt(document.getElementById("mcount").innerHTML)+1).toString();
-				keyState.player1.q=false;
+				keyState.character.q=false;
 				if (document.getElementById("mcount").innerHTML=="5")
 				{
 					document.getElementById("mcount").style.color="green";
@@ -601,7 +732,7 @@ function checkCollisions(playerBox) {
 			if (document.getElementById("fcount").innerHTML!="100")
 			{
 				document.getElementById("fcount").innerHTML=(parseInt(document.getElementById("fcount").innerHTML)+5).toString();
-				keyState.player1.q=false;
+				keyState.character.q=false;
 				if (document.getElementById("fcount").innerHTML=="100")
 				{
 					document.getElementById("fcount").style.color="green";
@@ -631,17 +762,17 @@ function checkCollisions(playerBox) {
 				break;
 			}
 		}
-			
-			
-		
 	}
-	if (touching.length>0 && keyState.player1.e) {
+  else {
+    rightArm.rotation.z = 0;
+  }
+	if (touching.length>0 && keyState.character.e) {
 		if (touching[0].obj.name.startsWith("Object_4"))
 		{
 			if (document.getElementById("rcount").innerHTML!="50")
 			{
 				document.getElementById("rcount").innerHTML=(parseInt(document.getElementById("rcount").innerHTML)+5).toString();
-				keyState.player1.e=false;
+				keyState.character.e=false;
 				if (document.getElementById("rcount").innerHTML=="50")
 				{
 					document.getElementById("rcount").style.color="green";
@@ -655,7 +786,7 @@ function checkCollisions(playerBox) {
 			if (document.getElementById("scount").innerHTML!="30")
 				{
 					document.getElementById("scount").innerHTML=(parseInt(document.getElementById("scount").innerHTML)+5).toString();
-					keyState.player1.e=false;
+					keyState.character.e=false;
 					if (document.getElementById("scount").innerHTML=="30")
 					{
 						document.getElementById("scount").style.color="green";
@@ -668,7 +799,7 @@ function checkCollisions(playerBox) {
 		// touching[0].material.emissiveIntensity = 1;
 		setTimeout(() => {
 			touching[0].obj.material=(originalEmissive); // Restore original color
-		}, 200);
+		}, 100);
 
 		// touching[0].obj.position-=5;
 		for (let i of colliders)
@@ -685,9 +816,9 @@ function checkCollisions(playerBox) {
 				break;
 			}
 		}
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+	//   if (checkCollisions(characterBox)) character.position.x -= speed;
 	}
-	if (keyState.player1.c) {
+	if (keyState.character.c) {
 		if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="50" && document.getElementById("fabcount").innerHTML!="2")
 			{
 				// document.getElementById("fabricbut").disabled=false;
@@ -696,49 +827,49 @@ function checkCollisions(playerBox) {
 				document.getElementById("fabcount").innerHTML=(parseInt(document.getElementById("fabcount").innerHTML)+1).toString();
 				document.getElementById("scount").style.color="red"
 				document.getElementById("rcount").style.color="red"
-				keyState.player1.c=false;
+				keyState.character.c=false;
 				if (document.getElementById("fabcount").innerHTML=="2")
 				{
 					document.getElementById("fabcount").style.color="green"
 				}
 			}
 
-	//   if (checkCollisions(player1Box)) player1.position.x -= speed;
+	//   if (checkCollisions(characterBox)) character.position.x -= speed;
 	}
 	// Player 1 Jump Logic
 	if (isJumping) {
-	  player1.position.y += jumpVelocity;
+	  character.position.y += jumpVelocity;
 	  jumpVelocity += gravity;
-	  if (player1.position.y <= 1.9) {
-		player1.position.y = 1.9; // Reset position
+	  if (character.position.y <= 1.9) {
+		character.position.y = 1.9; // Reset position
 		isJumping = false; // Stop jumping
 		jumpVelocity = 0;
 	  }
 	}
   
 	// Player 2 Movement
-	if (keyState.player2.arrowup) {
+	if (keyState.player2.ArrowUp) {
 	  player2.position.z -= speed;
 	  player2Box.setFromObject(player2);
 	  if (checkCollisions(player2Box)[0]) {
 		player2.position.z += speed;
 	  }
 	}
-	if (keyState.player2.arrowdown) {
+	if (keyState.player2.ArrowDown) {
 	  player2.position.z += speed;
 	  player2Box.setFromObject(player2);
 	  if (checkCollisions(player2Box)[0]) {
 		player2.position.z -= speed;
 	  }
 	}
-	if (keyState.player2.arrowleft) {
+	if (keyState.player2.ArrowLeft) {
 	  player2.position.x -= speed;
 	  player2Box.setFromObject(player2);
 	  if (checkCollisions(player2Box)[0]) {
 		player2.position.x += speed;
 	  }
 	}
-	if (keyState.player2.arrowright) {
+	if (keyState.player2.ArrowRight) {
 	  player2.position.x += speed;
 	  player2Box.setFromObject(player2);
 	  if (checkCollisions(player2Box)[0]) {
@@ -748,6 +879,32 @@ function checkCollisions(playerBox) {
   }
   
 
+  function animate() {
+    // requestAnimationFrame(animate);
+    // controls.update();
+    // // renderer.render(scene, camera);
+  
+    requestAnimationFrame(animate);
+    water.material.uniforms['time'].value += 1.0 / 50.0;  // Slower, more intense waves
+    // controls.update();
+    updatePlayers();
+    // let a = document.getElementById("toolbar")
+  //   checkColl()
+    // player1Box.setFromObject(player1);
+    // if (player1Box.intersectsBox(woodenObjectBox)) 
+    // {
+      // 	console.log("Player 1 intersects with the wooden object!");
+    // }
+    renderer.render(scene, camera);
+  
+    // // Update player positions
+    // // updatePlayerPositions();
+  
+    // // Render the scene
+    // renderer.render(scene, camera);
+  }
+  
+  animate();
 
 // function updatePlayers() {
 // 	// console.log('Updating players...');
@@ -755,8 +912,8 @@ function checkCollisions(playerBox) {
 	
 	
 // 	// Update Player 1 position
-// 	if (keyState.player1.f) {
-// 		// player1.position.z -= speed;
+// 	if (keyState.character.f) {
+// 		// character.position.z -= speed;
 // 		if ((document.getElementById("wcount").style.color=="green") &&
 // 			(document.getElementById("rcount").style.color=="green") &&
 // 			(document.getElementById("scount").style.color=="green") &&
@@ -1009,32 +1166,7 @@ function checkCollisions(playerBox) {
 
 
 
-function animate() {
-  // requestAnimationFrame(animate);
-  // controls.update();
-  // // renderer.render(scene, camera);
 
-	requestAnimationFrame(animate);
-	water.material.uniforms['time'].value += 1.0 / 50.0;  // Slower, more intense waves
-	controls.update();
-	updatePlayers();
-	// let a = document.getElementById("toolbar")
-//   checkColl()
-	// player1Box.setFromObject(player1);
-	// if (player1Box.intersectsBox(woodenObjectBox)) 
-	// {
-    // 	console.log("Player 1 intersects with the wooden object!");
-	// }
-	renderer.render(scene, camera);
-
-  // // Update player positions
-  // // updatePlayerPositions();
-
-  // // Render the scene
-  // renderer.render(scene, camera);
-}
-
-animate();
 
 
 
