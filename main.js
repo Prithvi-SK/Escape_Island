@@ -21,7 +21,7 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 
 // Water setup with stormy effect
-const waterGeometry = new THREE.PlaneGeometry(100, 100);
+const waterGeometry = new THREE.PlaneGeometry(200, 200);
 const water = new Water(waterGeometry, {
     textureWidth: 512,
     textureHeight: 512,
