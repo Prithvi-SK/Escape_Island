@@ -6,7 +6,7 @@
   <title>Escape Island - Lobby</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
@@ -14,49 +14,100 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: linear-gradient(to bottom, #87ceeb, #4682b4); /* Sky to ocean gradient */
-      color: #fff;
+      background: linear-gradient(to bottom, #d7f9f6, #a0e4f1, #9bf7a6); /* Light green to sky blue gradient */
+      color: #333;
       text-align: center;
     }
 
     #container {
       max-width: 600px;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      background: #ffffff; /* White container */
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border: 2px solid #a0e4f1; /* Sky blue border for a fresh look */
+      text-align: center;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
+      font-size: 2.8em;
+      margin-bottom: 15px;
+      color: #4CAF50; /* Light green for a natural touch */
     }
 
     p {
       font-size: 1.2em;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       line-height: 1.6;
+      color: #555; /* Softer text color */
     }
 
     button {
-      font-size: 1.2em;
+      font-size: 1.3em;
       color: #fff;
-      background-color: #28a745;
+      background-color: #4CAF50; /* Light green button */
       border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
+      border-radius: 12px;
+      padding: 12px 25px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
 
     button:hover {
-      background-color: #218838;
-      transform: translateY(-2px);
+      background-color: #3e8e41;
+      transform: translateY(-3px);
     }
 
     button:active {
       transform: translateY(1px);
+    }
+
+    /* Subtle animated background decoration */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.8);
+      animation: rise 8s ease-in-out infinite;
+    }
+
+    .bubble:nth-child(1) {
+      width: 40px;
+      height: 40px;
+      bottom: 10%;
+      left: 15%;
+      animation-delay: 0s;
+    }
+
+    .bubble:nth-child(2) {
+      width: 30px;
+      height: 30px;
+      bottom: 5%;
+      right: 20%;
+      animation-delay: 2s;
+    }
+
+    .bubble:nth-child(3) {
+      width: 50px;
+      height: 50px;
+      bottom: 15%;
+      left: 50%;
+      animation-delay: 4s;
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translateY(0);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateY(-100px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-200px);
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -64,12 +115,16 @@
   <div id="container">
     <h1>Welcome to Escape Island</h1>
     <p>
-      You are stranded on a deserted island with nothing. 
-      Your objective is to gather resources, craft essential tools, 
-      and build a boat to escape this island. 
-      Can you survive and make your way to freedom?
+      Stranded on a serene island, you must gather resources, craft tools, 
+      and build a boat to escape. 
+      Will you unlock the path to freedom?
     </p>
     <button onclick="location.href='index1.html'">Play</button>
   </div>
+
+  <!-- Decorative bubbles -->
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
 </body>
 </html>
