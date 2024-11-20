@@ -192,7 +192,7 @@ boatloader.load('boat.glb', (gltf) => {
   console.log(boatmesh)
   console.log("Q\nq\nq\nq\nq\nq\nq\nq\n")
   boatmesh.visible=false;
-  boatmesh.position.set(0, 3.5, 35);
+  boatmesh.position.set(21, -0.3, -4);
   boatmesh.rotation.y=Math.PI/2
   scene.add(boatmesh);
 
@@ -482,11 +482,11 @@ document.addEventListener('mousemove', (event) => {
 
 
 // Player 1 (Red box)
-const player1Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-const player1Material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const player1 = new THREE.Mesh(player1Geometry, player1Material);
-player1.position.set(10, 0.25, -10);
-scene.add(player1);
+// const player1Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+// const player1Material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+// const player1 = new THREE.Mesh(player1Geometry, player1Material);
+// player1.position.set(10, 0.25, -10);
+// scene.add(player1);
 // let player1BB=new THREE.Box3(new THREE.Vector3(),new THREE.Vector3()).set
 
 
@@ -524,11 +524,11 @@ scene.add(player1);
 // let armSwingDirection = 1; 
 
 // Player 2 (Blue box)
-const player2Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-const player2Material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-const player2 = new THREE.Mesh(player2Geometry, player2Material);
-player2.position.set(10, 0.25, -8.5);
-scene.add(player2);
+// const player2Geometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+// const player2Material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+// const player2 = new THREE.Mesh(player2Geometry, player2Material);
+// player2.position.set(10, 0.25, -8.5);
+// scene.add(player2);
 
 // Movement speed
 const speed = 0.1;
@@ -549,7 +549,7 @@ let jumpVelocity = 0;
 // Key state tracking
 const keyState = {
   character: { w: false, a: false, s: false, d: false, q: false, e: false, c: false, f: false },
-  player2: { ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false },
+
 };
 
 
@@ -561,7 +561,7 @@ window.addEventListener('keydown', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
 	// console.log(`Key down: ${key}`);
 	if (key in keyState.character) keyState.character[key] = true;
-	if (key in keyState.player2) keyState.player2[key] = true;
+	// if (key in keyState.player2) keyState.player2[key] = true;
 	if (event.code === 'Space' && !isJumping) {
 	  isJumping = true;
 	  jumpVelocity = jumpHeight;
@@ -572,11 +572,11 @@ window.addEventListener('keyup', (event) => {
 	const key = event.key.toLowerCase(); // Normalize to lowercase
 	// console.log(`Key up: ${key}`);
 	if (key in keyState.character) keyState.character[key] = false;
-	if (key in keyState.player2) keyState.player2[key] = false;
+	// if (key in keyState.player2) keyState.player2[key] = false;
 });
   
 let characterBox = new THREE.Box3().setFromObject(character);
-let player2Box = new THREE.Box3().setFromObject(player2);
+// let player2Box = new THREE.Box3().setFromObject(player2);
 // let characterBox= new THREE.Box3().setFromObject(character);
 
 // // player 1 red box
@@ -614,8 +614,8 @@ function checkCollisions(playerBox) {
   
   function updatePlayers() {
 	// Update the bounding boxes
-	characterBox.setFromObject(player1);
-	player2Box.setFromObject(player2);
+	characterBox.setFromObject(character);
+	// player2Box.setFromObject(player2);
   // characterBox.setFromObject(character)
   
 	// Player 1 Movement
@@ -767,6 +767,11 @@ function checkCollisions(playerBox) {
     rightArm.rotation.z = 0;
   }
 	if (touching.length>0 && keyState.character.e) {
+    swingDirection = swingDirection === 1 ? -1 : 1;
+      leftArm.rotation.z += swingDirection * 0.5;
+      if (Math.abs(leftArm.rotation.z) > Math.PI / 4) {
+        swingDirection = -swingDirection;
+      }
 		if (touching[0].obj.name.startsWith("Object_4"))
 		{
 			if (document.getElementById("rcount").innerHTML!="50")
@@ -818,6 +823,9 @@ function checkCollisions(playerBox) {
 		}
 	//   if (checkCollisions(characterBox)) character.position.x -= speed;
 	}
+  else {
+    leftArm.rotation.z = 0;
+  }
 	if (keyState.character.c) {
 		if (document.getElementById("scount").innerHTML=="30" && document.getElementById("rcount").innerHTML=="50" && document.getElementById("fabcount").innerHTML!="2")
 			{
@@ -836,46 +844,59 @@ function checkCollisions(playerBox) {
 
 	//   if (checkCollisions(characterBox)) character.position.x -= speed;
 	}
+  if (keyState.character.f) {
+  		// character.position.z -= speed;
+  		if ((document.getElementById("wcount").style.color=="green") &&
+  			(document.getElementById("rcount").style.color=="green") &&
+  			(document.getElementById("scount").style.color=="green") &&
+  			(document.getElementById("fcount").style.color=="green") && 
+  			(document.getElementById("fabcount").style.color=="green") )
+  		{
+  			boatobj.visible=true
+  			document.getElementById("successdiv").innerHTML="Congratulations!!\n You have crafted your boat at the harbour"
+  		}
+  	//   if (checkCollisions(player1Box)) player1.position.z += speed;
+  	}
 	// Player 1 Jump Logic
 	if (isJumping) {
 	  character.position.y += jumpVelocity;
 	  jumpVelocity += gravity;
-	  if (character.position.y <= 1.9) {
-		character.position.y = 1.9; // Reset position
+	  if (character.position.y <= 0) {
+		character.position.y = 0.125; // Reset position
 		isJumping = false; // Stop jumping
 		jumpVelocity = 0;
 	  }
 	}
   
-	// Player 2 Movement
-	if (keyState.player2.ArrowUp) {
-	  player2.position.z -= speed;
-	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)[0]) {
-		player2.position.z += speed;
-	  }
-	}
-	if (keyState.player2.ArrowDown) {
-	  player2.position.z += speed;
-	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)[0]) {
-		player2.position.z -= speed;
-	  }
-	}
-	if (keyState.player2.ArrowLeft) {
-	  player2.position.x -= speed;
-	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)[0]) {
-		player2.position.x += speed;
-	  }
-	}
-	if (keyState.player2.ArrowRight) {
-	  player2.position.x += speed;
-	  player2Box.setFromObject(player2);
-	  if (checkCollisions(player2Box)[0]) {
-		player2.position.x -= speed;
-	  }
-	}
+	// // Player 2 Movement
+	// if (keyState.player2.ArrowUp) {
+	//   player2.position.z -= speed;
+	//   player2Box.setFromObject(player2);
+	//   if (checkCollisions(player2Box)[0]) {
+	// 	player2.position.z += speed;
+	//   }
+	// }
+	// if (keyState.player2.ArrowDown) {
+	//   player2.position.z += speed;
+	//   player2Box.setFromObject(player2);
+	//   if (checkCollisions(player2Box)[0]) {
+	// 	player2.position.z -= speed;
+	//   }
+	// }
+	// if (keyState.player2.ArrowLeft) {
+	//   player2.position.x -= speed;
+	//   player2Box.setFromObject(player2);
+	//   if (checkCollisions(player2Box)[0]) {
+	// 	player2.position.x += speed;
+	//   }
+	// }
+	// if (keyState.player2.ArrowRight) {
+	//   player2.position.x += speed;
+	//   player2Box.setFromObject(player2);
+	//   if (checkCollisions(player2Box)[0]) {
+	// 	player2.position.x -= speed;
+	//   }
+	// }
   }
   
 

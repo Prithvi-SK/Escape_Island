@@ -1,105 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Dashboard</title>
-    <style>
-        body, html {
-            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQB1TlpasIqri2J7FnnJ_YaG8OOPiwn_T1EDA&s'); /* Updated background image */
-            background-size: 100% 100%; /* Stretch the image to fill the container */
-            background-position: center; /* Center the background image */
-            background-repeat: no-repeat; 
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #2a2a2a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape Island - Lobby</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to bottom, #87ceeb, #4682b4); /* Sky to ocean gradient */
+      color: #fff;
+      text-align: center;
+    }
 
-        .container {
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            background-color: rgba(0, 0, 0, 1);
-            text-align: center;
-            width: 600px; /* Adjusted width for two player cards */
-            /* backdrop-filter: blur(5px); Optional: blur the background for better readability */
-        }
+    #container {
+      max-width: 600px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
-        .player-card-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
 
-        .player-card {
-            background-color: rgba(68, 68, 68, 0.8); /* Semi-transparent background for cards */
-            border-radius: 10px;
-            padding: 20px;
-            color: white;
-            flex: 1; /* Flex property to evenly distribute space */
-            margin: 0 10px; /* Margin between player cards */
-        }
+    p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
 
-        .player-card h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #e94560;
-        }
+    button {
+      font-size: 1.2em;
+      color: #fff;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
 
-        .player-card p {
-            margin: 5px 0;
-            font-size: 1rem;
-        }
+    button:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
 
-        .button {
-            display: inline-block;
-            background-color: #ff6347;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .button:hover {
-            background-color: #ff4500;
-        }
-
-        .icon {
-            font-size: 1.5rem;
-        }
-    </style>
+    button:active {
+      transform: translateY(1px);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="player-card-container">
-            <div class="player-card">
-                <h2>Player 1</h2>
-                <p>Score: 1500</p>
-                <p>Level: 10</p>
-            </div>
-            <div class="player-card">
-                <h2>Player 2</h2>
-                <p>Score: 1200</p>
-                <p>Level: 8</p>
-            </div>
-        </div>
-        <button class="button" id="sound-button">
-            <span class="icon">🔊</span> Sound
-        </button>
-        <button class="button" id="settings-button">
-            <span class="icon">⚙️</span> Settings
-        </button>
-        <button class="button" id="enter-game-button">
-            <span class="icon">🎮</span> <a href="index1.html">Enter Game</a>
-        </button>
-    </div>
+  <div id="container">
+    <h1>Welcome to Escape Island</h1>
+    <p>
+      You are stranded on a deserted island with nothing. 
+      Your objective is to gather resources, craft essential tools, 
+      and build a boat to escape this island. 
+      Can you survive and make your way to freedom?
+    </p>
+    <button onclick="location.href='index1.html'">Play</button>
+  </div>
 </body>
 </html>
