@@ -41,6 +41,8 @@ Harvest trees,
 Collect Objects,
 Craft Objects
 
+https://youtu.be/JgeYShqxERs?si=0bxwGCbFB6t23I9T
+
 ![image](https://github.com/user-attachments/assets/5dcbee94-df55-4764-8f86-6ee320aeafc9)
 ![image](https://github.com/user-attachments/assets/9792d369-cfe6-4d0c-ba39-aea5c1651927)
 ![image](https://github.com/user-attachments/assets/d29e5938-ff57-4a7f-bb47-25d7688baa9c)
