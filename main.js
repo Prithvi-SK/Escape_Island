@@ -6,6 +6,7 @@ import { Sky } from 'three/addons/objects/Sky.js';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
 import * as Ammo from "ammo.js";
 import { Water } from 'three/examples/jsm/objects/Water.js';
+import {DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader';
 
 // initial set up of window
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -90,9 +91,21 @@ sunlight.shadow.camera.bottom = -50;
 // Add sunlight to the scene
 scene.add(sunlight);
 
+
+// Compressor
+const boatloader = new GLTFLoader();
+const loader = new GLTFLoader();
+
+const dLoader=new DRACOLoader();
+dLoader.setDecoderPath("https://github.com/google/draco");
+dLoader.setDecoderConfig({type:"js"});
+boatloader.setDRACOLoader(dLoader);
+loader.setDRACOLoader(dLoader);
+
+
 // Boat to escape in
 let boatobj = new THREE.Box3();
-const boatloader = new GLTFLoader();
+
 boatloader.load('boat.glb', (gltf) => {
     const boatmesh = gltf.scene;
 
@@ -120,7 +133,6 @@ let islandmodel = null;
 let children = [];
 
 // loading main island model made in blender
-const loader = new GLTFLoader();
 loader.load(
     'minimodel2.glb',
     (gltf) => {
