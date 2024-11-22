@@ -97,7 +97,7 @@ const boatloader = new GLTFLoader();
 const loader = new GLTFLoader();
 
 const dLoader=new DRACOLoader();
-dLoader.setDecoderPath("https://github.com/google/draco");
+dLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
 dLoader.setDecoderConfig({type:"js"});
 boatloader.setDRACOLoader(dLoader);
 loader.setDRACOLoader(dLoader);
@@ -106,7 +106,7 @@ loader.setDRACOLoader(dLoader);
 // Boat to escape in
 let boatobj = new THREE.Box3();
 
-boatloader.load('boat.glb', (gltf) => {
+boatloader.load('boat2.glb', (gltf) => {
     const boatmesh = gltf.scene;
 
     boatobj = boatmesh;
@@ -134,7 +134,7 @@ let children = [];
 
 // loading main island model made in blender
 loader.load(
-    'minimodel2.glb',
+    'minimodel3.glb',
     (gltf) => {
         console.log('loading model');
         const mesh = gltf.scene;

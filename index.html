@@ -1,149 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Island</title>
-		<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f0f0; /* Light background for better contrast */
-  color: #333;
-}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape Island - Lobby</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to bottom, #d7f9f6, #a0e4f1, #9bf7a6); /* Light green to sky blue gradient */
+      color: #333;
+      text-align: center;
+    }
 
-#top-right-container {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    #container {
+      max-width: 600px;
+      padding: 25px;
+      background: #ffffff; /* White container */
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border: 2px solid #a0e4f1; /* Sky blue border for a fresh look */
+      text-align: center;
+    }
 
-#top-right-container h5 {
-  margin: 0;
-  color: #fff;
-  font-size: 14px;
-  text-align: right;
-}
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 15px;
+      color: #4CAF50; /* Light green for a natural touch */
+    }
 
-#toolbar {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    p {
+      font-size: 1.2em;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      color: #555; /* Softer text color */
+    }
 
-.resource {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
+    button {
+      font-size: 1.3em;
+      color: #fff;
+      background-color: #4CAF50; /* Light green button */
+      border: none;
+      border-radius: 12px;
+      padding: 12px 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
 
-.resource h5 {
-  margin: 0;
-  font-size: 14px;
-  color: #fff;
-}
+    button:hover {
+      background-color: #3e8e41;
+      transform: translateY(-3px);
+    }
 
-.resource span {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffcc00; /* Highlight the resource count */
-}
+    button:active {
+      transform: translateY(1px);
+    }
 
-#successdiv {
-  position: absolute;
-  top: 20px; /* Move it 20px from the top */
-  left: 50%;
-  transform: translateX(-50%);
-  color: red;
-  font-size: 16px;
-  text-align: center;
-}
+    /* Subtle animated background decoration */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.8);
+      animation: rise 8s ease-in-out infinite;
+    }
 
+    .bubble:nth-child(1) {
+      width: 40px;
+      height: 40px;
+      bottom: 10%;
+      left: 15%;
+      animation-delay: 0s;
+    }
 
-#progress-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background-color: #ddd;
-}
+    .bubble:nth-child(2) {
+      width: 30px;
+      height: 30px;
+      bottom: 5%;
+      right: 20%;
+      animation-delay: 2s;
+    }
 
-		</style>
-		<link rel="stylesheet" href="public/index.css">
+    .bubble:nth-child(3) {
+      width: 50px;
+      height: 50px;
+      bottom: 15%;
+      left: 50%;
+      animation-delay: 4s;
+    }
 
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cannon/build/cannon.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ammo.js/0.0.10/ammo.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/ammo.js"></script> -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.rawgit.com/kripken/ammo.js/master/builds/ammo"></script>
-
-
-
-
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@v0.163.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@v0.163.0/examples/jsm/"
-        }
+    @keyframes rise {
+      0% {
+        transform: translateY(0);
+        opacity: 0.8;
       }
-    </script>
-	</head>
-	<body>
-		<div id="top-right-container">
-		  <h5>E-Collect</h5>
-		  <h5>Q-Harvest</h5>
-		  <h5>C-Craft</h5>
-		  <h5>F-Make Boat</h5>
-		</div>
-	  
-		<div id="toolbar">
-		  <div class="resource">
-			<h5>Wood:</h5>
-			<span id="wcount">0</span> / 500
-		  </div>
-		  <div class="resource">
-			<h5>Food:</h5>
-			<span id="fcount">0</span> / 100
-		  </div>
-		  <div class="resource">
-			<h5>Rope:</h5>
-			<span id="rcount">0</span> / 50
-		  </div>
-		  <div class="resource">
-			<h5>Wool:</h5>
-			<span id="scount">0</span> / 30
-		  </div>
-		  <div class="resource">
-			<h5>Fabric:</h5>
-			<span id="fabcount">0</span> / 2
-		  </div>
-		</div>
-	  
-		<div id="successdiv"></div>
-		<div id="progress-container"></div>
-	  
-		<script type="module" src="./main.js"></script>
-	  </body>
-	  
+      50% {
+        transform: translateY(-100px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-200px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Welcome to Escape Island</h1>
+    <p>
+      Stranded on a serene island, you must gather resources, craft tools, 
+      and build a boat to escape. 
+      Will you unlock the path to freedom?
+    </p>
+    <button onclick="location.href='index1.html'">Play</button>
+  </div>
+
+  <!-- Decorative bubbles -->
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+</body>
 </html>
